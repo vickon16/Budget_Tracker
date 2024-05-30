@@ -1,21 +1,14 @@
 "use client";
 
-import { getBalanceStats } from "@/actions/user/get";
-import SkeletonWrapper from "@/components/SkeletonWrapper";
-import { Card } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { MAX_DATE_RANGE_DAYS, dateToUTCDate, formatter } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { MAX_DATE_RANGE_DAYS } from "@/lib/constants";
 import { TOverviewSchema } from "@/lib/zodSchema";
 import { UserSettings } from "@prisma/client";
-import { useQuery } from "@tanstack/react-query";
 import { differenceInDays, startOfMonth } from "date-fns";
-import { LucideIcon, TrendingDown, TrendingUp, Wallet } from "lucide-react";
-import { useCallback, useState } from "react";
-import CountUp from "react-countup";
+import { useState } from "react";
 import { toast } from "sonner";
-import StatCards from "./StatCards";
 import CategoriesStats from "./CategoriesStats";
+import StatCards from "./StatCards";
 
 type Props = {
   userSettings: UserSettings;
