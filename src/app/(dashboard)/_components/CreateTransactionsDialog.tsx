@@ -66,13 +66,13 @@ const CreateTransactionsDialog = ({ trigger, type }: Props) => {
           id: "create-transaction",
         });
       }
+      setOpen(false);
       toast.success("Transaction created successfully", {
         id: "create-transaction",
       });
 
       form.reset(defaultValues);
       await queryClient.invalidateQueries({ queryKey: ["overview"] });
-      setOpen(false);
     },
     onError: (error) => {
       toast.error("Transaction creation failed", {
