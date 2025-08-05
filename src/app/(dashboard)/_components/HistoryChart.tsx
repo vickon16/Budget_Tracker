@@ -26,11 +26,7 @@ type Props = {
 
 const HistoryChart = ({ userSettings }: Props) => {
   const { timeFrame, period } = useHistory();
-  const {
-    data: historyData,
-    isFetching,
-    isLoading,
-  } = useQuery({
+  const { data: historyData, isLoading } = useQuery({
     enabled: !!timeFrame && !!period,
     queryKey: ["overview", "history", timeFrame, period],
     queryFn: async () =>
@@ -46,6 +42,7 @@ const HistoryChart = ({ userSettings }: Props) => {
   }, [userSettings]);
 
   const history = historyData?.data;
+  console.log({ history });
 
   return (
     <SkeletonWrapper isLoading={isLoading}>
