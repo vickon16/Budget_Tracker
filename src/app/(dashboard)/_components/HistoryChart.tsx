@@ -26,7 +26,11 @@ type Props = {
 
 const HistoryChart = ({ userSettings }: Props) => {
   const { timeFrame, period } = useHistory();
-  const historyDataQuery = useQuery({
+  const {
+    data: historyData,
+    isFetching,
+    isLoading,
+  } = useQuery({
     enabled: !!timeFrame && !!period,
     queryKey: ["overview", "history", timeFrame, period],
     queryFn: async () =>
@@ -41,20 +45,17 @@ const HistoryChart = ({ userSettings }: Props) => {
     return formatter(userSettings.currency);
   }, [userSettings]);
 
+  const history = historyData?.data;
+
   return (
-    <SkeletonWrapper isLoading={historyDataQuery.isFetching}>
-      {historyDataQuery?.data?.data &&
-      historyDataQuery.data?.data?.length > 0 ? (
+    <SkeletonWrapper isLoading={isLoading}>
+      {!!history && history.length > 0 ? (
         <ResponsiveContainer
           width={"100%"}
           height={300}
           className="w-full h-full"
         >
-          <BarChart
-            className="w-full h-full"
-            data={historyDataQuery.data.data}
-            barCategoryGap={5}
-          >
+          <BarChart className="w-full h-full" data={history} barCategoryGap={5}>
             <defs>
               <linearGradient id="incomeBar" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0" stopColor="#10b981" stopOpacity={1} />

@@ -1,11 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Period, TimeFrame } from "@/types";
 import { UserSettings } from "@prisma/client";
-import { useState } from "react";
 import HistoryPeriodSelector from "./HistoryPeriodSelector";
-import { useQuery } from "@tanstack/react-query";
-import { getHistoryData } from "@/actions/user/get";
 import HistoryChart from "./HistoryChart";
 
 type Props = {

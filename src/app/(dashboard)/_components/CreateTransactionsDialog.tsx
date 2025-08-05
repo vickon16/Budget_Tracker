@@ -25,7 +25,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { dateToUTCDate } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { TTransactionSchema, transactionSchema } from "@/lib/zodSchema";
 import { TransactionType } from "@/types";
@@ -71,7 +70,7 @@ const CreateTransactionsDialog = ({ trigger, type }: Props) => {
         id: "create-transaction",
       });
 
-      form.reset(defaultValues);
+      form.reset({ ...defaultValues, type });
       await queryClient.invalidateQueries({ queryKey: ["overview"] });
     },
     onError: (error) => {
@@ -88,7 +87,7 @@ const CreateTransactionsDialog = ({ trigger, type }: Props) => {
 
     await transactionMutation.mutateAsync({
       ...values,
-      date: dateToUTCDate(values.date), // remove the timezone from the date
+      date: values.date,
     });
   };
 
@@ -217,7 +216,7 @@ const CreateTransactionsDialog = ({ trigger, type }: Props) => {
             <Button
               type="submit"
               className="w-full !mt-8"
-              disabled={form.formState.isSubmitting}
+              disabled={transactionMutation.isPending}
             >
               Create {type === "income" ? "Income" : "Expense"}
             </Button>

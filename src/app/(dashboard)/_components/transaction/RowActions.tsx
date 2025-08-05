@@ -48,7 +48,8 @@ const RowActions = ({ transaction }: Props) => {
         id: transaction.id,
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.log({error})
       toast.error("Failed to delete transaction", {
         id: transaction.id,
       });

@@ -1,7 +1,5 @@
 "use client";
 
-import { getHistoryPeriods } from "@/actions/user/get";
-import SkeletonWrapper from "@/components/SkeletonWrapper";
 import {
   Select,
   SelectContent,
@@ -12,47 +10,28 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useHistory from "@/hooks/useHistory";
 import { monthArray } from "@/lib/constants";
-import { Period, TimeFrame } from "@/types";
-import { useQuery } from "@tanstack/react-query";
-import { Dispatch, SetStateAction } from "react";
+import { TimeFrame } from "@/types";
+import { useMemo } from "react";
 
 const HistoryPeriodSelector = () => {
   const { timeFrame, setTimeFrame } = useHistory();
-  const historyPeriods = useQuery({
-    queryKey: ["overview", "history", "periods"],
-    queryFn: async () => await getHistoryPeriods(),
-  });
 
   return (
     <section className="flex flex-wrap items-center gap-4">
-      <SkeletonWrapper isLoading={historyPeriods.isFetching} fullWidth={false}>
-        <Tabs
-          value={timeFrame}
-          onValueChange={(value) => setTimeFrame(value as TimeFrame)}
-          className="select-none"
-        >
-          <TabsList>
-            <TabsTrigger value="year">Year</TabsTrigger>
-            <TabsTrigger value="month">Month</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </SkeletonWrapper>
+      <Tabs
+        value={timeFrame}
+        onValueChange={(value) => setTimeFrame(value as TimeFrame)}
+        className="select-none"
+      >
+        <TabsList>
+          <TabsTrigger value="year">Year</TabsTrigger>
+          <TabsTrigger value="month">Month</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <div className="flex flex-wrap items-center gap-2">
-        <SkeletonWrapper
-          isLoading={historyPeriods.isFetching}
-          fullWidth={false}
-        >
-          <YearSelector years={historyPeriods?.data?.data || []} />
-        </SkeletonWrapper>
-        {timeFrame === "month" && (
-          <SkeletonWrapper
-            isLoading={historyPeriods.isFetching}
-            fullWidth={false}
-          >
-            <MonthSelector months={historyPeriods?.data?.data || []} />
-          </SkeletonWrapper>
-        )}
+        <YearSelector />
+        {timeFrame === "month" && <MonthSelector />}
       </div>
     </section>
   );
@@ -60,12 +39,16 @@ const HistoryPeriodSelector = () => {
 
 export default HistoryPeriodSelector;
 
-type YearSelectorProps = {
-  years: Awaited<ReturnType<typeof getHistoryPeriods>>["data"] | [];
-};
-
-const YearSelector = ({ years }: YearSelectorProps) => {
+const YearSelector = () => {
   const { period, setPeriod } = useHistory();
+
+  const years = useMemo(() => {
+    const years = Array.from(
+      { length: new Date().getFullYear() - 2000 + 1 },
+      (_, i) => 2000 + i
+    );
+    return years.reverse();
+  }, []);
 
   return (
     <Select
@@ -88,11 +71,7 @@ const YearSelector = ({ years }: YearSelectorProps) => {
   );
 };
 
-type MonthSelectorProps = {
-  months: Awaited<ReturnType<typeof getHistoryPeriods>>["data"] | [];
-};
-
-const MonthSelector = ({ months }: MonthSelectorProps) => {
+const MonthSelector = () => {
   const { period, setPeriod } = useHistory();
 
   return (

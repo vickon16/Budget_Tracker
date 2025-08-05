@@ -3,7 +3,7 @@
 import { getBalanceStats } from "@/actions/user/get";
 import SkeletonWrapper from "@/components/SkeletonWrapper";
 import { Card } from "@/components/ui/card";
-import { dateToUTCDate, formatter } from "@/lib/constants";
+import { formatter } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { TOverviewSchema } from "@/lib/zodSchema";
 import { UserSettings } from "@prisma/client";
@@ -23,8 +23,8 @@ const StatCards = ({ userSettings, dateRange }: Props) => {
     queryKey: ["overview", "stats", dateRange.from, dateRange.to],
     queryFn: async () =>
       await getBalanceStats({
-        from: dateToUTCDate(dateRange.from),
-        to: dateToUTCDate(dateRange.to),
+        from: dateRange.from,
+        to: dateRange.to,
       }),
   });
 

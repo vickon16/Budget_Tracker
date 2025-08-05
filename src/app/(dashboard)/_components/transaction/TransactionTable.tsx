@@ -1,7 +1,6 @@
 "use client";
 
 import { getTransactionHistory } from "@/actions/user/get";
-import { dateToUTCDate } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -53,11 +52,7 @@ const TransactionTable = ({ from, to }: Props) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const transactionsQuery = useQuery({
     queryKey: ["transactions", "history", from, to],
-    queryFn: async () =>
-      await getTransactionHistory({
-        from: dateToUTCDate(from),
-        to: dateToUTCDate(to),
-      }),
+    queryFn: async () => await getTransactionHistory({ from, to }),
   });
 
   const table = useReactTable({
@@ -81,9 +76,11 @@ const TransactionTable = ({ from, to }: Props) => {
   const categoriesOptions = useMemo(() => {
     const categoriesMap = new Map();
     transactionsQuery?.data?.data?.forEach((transaction) => {
-      categoriesMap.set(transaction.category, {
-        value: transaction.category,
-        label: `${transaction.categoryIcon} ${transaction.category}`,
+      const categoryId = transaction.category.id;
+      if (!categoryId) return;
+      categoriesMap.set(categoryId, {
+        value: categoryId,
+        label: `${transaction.category.icon} ${transaction.category.name}`,
       });
     });
 
@@ -132,8 +129,8 @@ const TransactionTable = ({ from, to }: Props) => {
             className="ml-auto h-8 lg:flex"
             onClick={() => {
               const data = table.getFilteredRowModel().rows.map((row) => ({
-                category: row.original.category,
-                categoryIcon: row.original.categoryIcon,
+                category: row.original.category.name,
+                categoryIcon: row.original.category.icon,
                 type: row.original.type,
                 description: row.original.description,
                 amount: row.original.amount,

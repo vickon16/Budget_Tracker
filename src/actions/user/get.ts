@@ -111,7 +111,7 @@ export const getCategoriesStats = async (statParams: TOverviewSchema) => {
   const { from, to } = validator.data;
 
   const stats = await prisma.transaction.groupBy({
-    by: ["type", "category", "categoryIcon"],
+    by: ["type", "categoryId"],
     where: {
       userId: user.id,
       date: {
@@ -129,29 +129,6 @@ export const getCategoriesStats = async (statParams: TOverviewSchema) => {
   };
 };
 
-export const getHistoryPeriods = async () => {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
-
-  const monthHistory = await prisma.monthHistory.findMany({
-    where: { userId: user.id },
-    select: { year: true },
-    distinct: ["year"], // often used in combination to select in find many queries
-    orderBy: { year: "asc" },
-  });
-
-  let results = monthHistory.map((mh) => mh.year);
-
-  if (results.length === 0) {
-    results = [new Date().getFullYear()]; // return the currency year
-  }
-
-  return {
-    success: true,
-    data: results,
-  };
-};
-
 export const getHistoryData = async (historyData: THistoryDataSchema) => {
   const user = await currentUser();
   if (!user) redirect("/sign-in");
@@ -165,63 +142,83 @@ export const getHistoryData = async (historyData: THistoryDataSchema) => {
 
   const { timeFrame, month, year } = validator.data;
 
-  if (timeFrame === "year") {
-    const result = await prisma.yearHistory.groupBy({
-      by: ["month"],
-      where: { userId: user.id, year },
-      _sum: { income: true, expense: true },
-      orderBy: { month: "asc" },
-    });
+  const transactions = await prisma.transaction.findMany({
+    where: { userId: user.id },
+  });
 
-    // transform the array to fill in other months
-    const history = monthArray.map((i) => {
-      const defaultFields = { year, month: i };
-      const monthData = result.find((m) => m.month === i);
+  // Group transactions based on the timeFrame (year or month)
+  const historyMap = new Map<
+    string,
+    {
+      expense: number;
+      income: number;
+      year: number;
+      month: number;
+      day: number;
+    }
+  >();
 
-      if (monthData) {
-        return {
-          ...defaultFields,
-          expense: monthData._sum.expense || 0,
-          income: monthData._sum.income || 0,
-        };
+  transactions.forEach((transaction) => {
+    const transactionDate = new Date(transaction.date);
+    const transactionYear = transactionDate.getFullYear();
+    const transactionMonth = transactionDate.getMonth();
+
+    // Skip transactions that don't match the filter criteria
+    if (timeFrame === "year" && transactionYear !== year) return;
+    if (
+      timeFrame === "month" &&
+      (transactionYear !== year || transactionMonth !== month)
+    )
+      return;
+
+    let key: string;
+
+    if (timeFrame === "year") {
+      // For year timeframe, group by month
+      key = `${transactionYear}-${transactionMonth}`;
+
+      if (!historyMap.has(key)) {
+        historyMap.set(key, {
+          expense: 0,
+          income: 0,
+          year: transactionYear,
+          month: transactionMonth,
+          day: 1,
+        });
       }
+    } else {
+      // For month timeframe, group by day (we'll still use month-day as key)
+      const day = transactionDate.getDate();
+      key = `${transactionYear}-${transactionMonth}-${day}`;
 
-      return { ...defaultFields, expense: 0, income: 0 };
-    });
-
-    return { success: true, data: history };
-  }
-
-  if (timeFrame === "month") {
-    const result = await prisma.monthHistory.groupBy({
-      by: ["day"],
-      where: { userId: user.id, year, month },
-      _sum: { income: true, expense: true },
-      orderBy: { day: "asc" },
-    });
-
-    // transform the array to fill in other months
-    const daysInMonth = getDaysInMonth(new Date(year, month));
-
-    const history = Array.from({ length: daysInMonth }, (_, i) => i).map(
-      (iDay) => {
-        const defaultFields = { year, month, day: iDay };
-        const dayData = result.find((m) => m.day === iDay);
-
-        if (dayData) {
-          return {
-            ...defaultFields,
-            expense: dayData._sum.expense || 0,
-            income: dayData._sum.income || 0,
-          };
-        }
-
-        return { ...defaultFields, expense: 0, income: 0 };
+      if (!historyMap.has(key)) {
+        historyMap.set(key, {
+          expense: 0,
+          income: 0,
+          year: transactionYear,
+          month: transactionMonth,
+          day: day,
+        });
       }
-    );
+    }
 
-    return { success: true, data: history };
-  }
+    const entry = historyMap.get(key)!;
+
+    // Sum up the transaction amount based on type
+    if (transaction.type === "expense") {
+      entry.expense += transaction.amount;
+    } else if (transaction.type === "income") {
+      entry.income += transaction.amount;
+    }
+  });
+
+  // Convert the map values to an array for the response
+  const history = Array.from(historyMap.values());
+
+  return {
+    success: true,
+    data: history || [],
+  };
 };
 
 export const getTransactionHistory = async (
@@ -257,6 +254,7 @@ export const getTransactionHistory = async (
         lte: to,
       },
     },
+    include: { category: true },
     orderBy: { date: "desc" },
   });
 

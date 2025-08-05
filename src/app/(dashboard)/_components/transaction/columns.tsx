@@ -1,15 +1,16 @@
 "use client";
 
-import { Transaction } from "@prisma/client";
+import { Prisma, Transaction } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "./ColumnHeader";
 import { cn } from "@/lib/utils";
 import RowActions from "./RowActions";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+type TTransaction = Prisma.TransactionGetPayload<{
+  include: { category: true };
+}>;
 
-export const columns: ColumnDef<Transaction>[] = [
+export const columns: ColumnDef<TTransaction>[] = [
   {
     accessorKey: "category",
     header: ({ column }) => (
@@ -24,8 +25,8 @@ export const columns: ColumnDef<Transaction>[] = [
     },
     cell: ({ row }) => (
       <div className="flex gap-2 capitalize justify-center">
-        {row.original.categoryIcon}{" "}
-        <div className="capitalize">{row.original.category}</div>
+        {row.original.category.icon}{" "}
+        <div className="capitalize">{row.original.category.name}</div>
       </div>
     ),
   },
@@ -56,7 +57,6 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => {
       const data = new Date(row.original.date);
       const formattedDate = data.toLocaleDateString("default", {
-        timeZone: "UTC",
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
