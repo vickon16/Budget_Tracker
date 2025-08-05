@@ -1,6 +1,6 @@
 "use server";
 
-import { formatter, monthArray } from "@/lib/constants";
+import { formatter } from "@/lib/constants";
 import prisma from "@/lib/prisma";
 import {
   THistoryDataSchema,
@@ -10,22 +10,21 @@ import {
   transactionSchema,
 } from "@/lib/zodSchema";
 import { TransactionType } from "@/types";
-import { currentUser } from "@clerk/nextjs/server";
-import { getDaysInMonth } from "date-fns";
+import { auth } from "@/server/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export const getUserSettings = async () => {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
+  const session = await auth();
+  if (!session || !session?.user?.id) redirect("/auth/login");
 
   let userSettings = await prisma.userSettings.findUnique({
-    where: { userId: user.id },
+    where: { userId: session.user.id },
   });
 
   if (!userSettings) {
     userSettings = await prisma.userSettings.create({
-      data: { currency: "USD", userId: user.id },
+      data: { currency: "USD", userId: session.user.id },
     });
   }
 
@@ -34,14 +33,14 @@ export const getUserSettings = async () => {
 };
 
 export const getCategories = async (type?: TransactionType) => {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
+  const session = await auth();
+  if (!session || !session?.user?.id) redirect("/auth/login");
 
   let categories;
 
   if (!type) {
     categories = await prisma.category.findMany({
-      where: { userId: user.id },
+      where: { userId: session.user.id },
       orderBy: { name: "asc" },
     });
   } else {
@@ -52,18 +51,17 @@ export const getCategories = async (type?: TransactionType) => {
       return { success: false, message: validator.error.message };
 
     categories = await prisma.category.findMany({
-      where: { userId: user.id, type },
+      where: { userId: session.user.id, type },
       orderBy: { name: "asc" },
     });
   }
 
-  revalidatePath("/manage");
   return { success: true, data: categories };
 };
 
 export const getBalanceStats = async (statParams: TOverviewSchema) => {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
+  const session = await auth();
+  if (!session || !session?.user?.id) redirect("/auth/login");
 
   const validator = overviewSchema.safeParse(statParams);
   if (!validator.success)
@@ -77,7 +75,7 @@ export const getBalanceStats = async (statParams: TOverviewSchema) => {
   const total = await prisma.transaction.groupBy({
     by: ["type"],
     where: {
-      userId: user.id,
+      userId: session?.user?.id,
       date: {
         gte: from,
         lte: to,
@@ -98,8 +96,8 @@ export const getBalanceStats = async (statParams: TOverviewSchema) => {
 };
 
 export const getCategoriesStats = async (statParams: TOverviewSchema) => {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
+  const session = await auth();
+  if (!session || !session?.user?.id) redirect("/auth/login");
 
   const validator = overviewSchema.safeParse(statParams);
   if (!validator.success)
@@ -113,7 +111,7 @@ export const getCategoriesStats = async (statParams: TOverviewSchema) => {
   const stats = await prisma.transaction.groupBy({
     by: ["type", "categoryId"],
     where: {
-      userId: user.id,
+      userId: session.user.id,
       date: {
         gte: from,
         lte: to,
@@ -130,8 +128,8 @@ export const getCategoriesStats = async (statParams: TOverviewSchema) => {
 };
 
 export const getHistoryData = async (historyData: THistoryDataSchema) => {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
+  const session = await auth();
+  if (!session) redirect("/auth/login");
 
   const validator = historyDataSchema.safeParse(historyData);
   if (!validator.success)
@@ -143,7 +141,7 @@ export const getHistoryData = async (historyData: THistoryDataSchema) => {
   const { timeFrame, month, year } = validator.data;
 
   const transactions = await prisma.transaction.findMany({
-    where: { userId: user.id },
+    where: { userId: session.user?.id },
   });
 
   // Group transactions based on the timeFrame (year or month)
@@ -224,8 +222,8 @@ export const getHistoryData = async (historyData: THistoryDataSchema) => {
 export const getTransactionHistory = async (
   transactionParams: TOverviewSchema
 ) => {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
+  const session = await auth();
+  if (!session || !session?.user?.id) redirect("/auth/login");
 
   const validator = overviewSchema.safeParse(transactionParams);
   if (!validator.success)
@@ -237,7 +235,7 @@ export const getTransactionHistory = async (
   const { from, to } = validator.data;
 
   const userSettings = await prisma.userSettings.findUnique({
-    where: { userId: user.id },
+    where: { userId: session.user.id },
   });
 
   if (!userSettings)
@@ -248,7 +246,7 @@ export const getTransactionHistory = async (
 
   const transactions = await prisma.transaction.findMany({
     where: {
-      userId: user.id,
+      userId: session.user.id,
       date: {
         gte: from,
         lte: to,
