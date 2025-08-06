@@ -175,7 +175,7 @@ const CreateTransactionsDialog = ({ trigger, type }: Props) => {
                   <FormItem className="space-y-3 flex flex-col">
                     <FormLabel>Transaction Date</FormLabel>
 
-                    <Popover>
+                    <Popover modal={false}>
                       <PopoverTrigger asChild>
                         <Button
                           variant={"outline"}

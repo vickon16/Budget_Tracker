@@ -82,7 +82,7 @@ export function CurrencyComboBox() {
   if (isDesktop) {
     return (
       <SkeletonWrapper isLoading={isFetching}>
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover modal={false} open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"

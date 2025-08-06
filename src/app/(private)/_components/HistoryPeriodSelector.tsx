@@ -17,7 +17,7 @@ const HistoryPeriodSelector = () => {
   const { timeFrame, setTimeFrame } = useHistory();
 
   return (
-    <section className="flex flex-wrap items-center gap-4">
+    <section className="flex flex-col sm:flex-row sm:items-center gap-4">
       <Tabs
         value={timeFrame}
         onValueChange={(value) => setTimeFrame(value as TimeFrame)}
@@ -29,7 +29,7 @@ const HistoryPeriodSelector = () => {
         </TabsList>
       </Tabs>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center gap-2">
         <YearSelector />
         {timeFrame === "month" && <MonthSelector />}
       </div>
@@ -57,7 +57,7 @@ const YearSelector = () => {
         setPeriod({ month: period.month, year: parseInt(value) })
       }
     >
-      <SelectTrigger className="w-[180px] select-none">
+      <SelectTrigger className="max-w-[180px] select-none">
         <SelectValue placeholder="Year" />
       </SelectTrigger>
       <SelectContent>
@@ -81,7 +81,7 @@ const MonthSelector = () => {
         setPeriod({ month: parseInt(value), year: period.year })
       }
     >
-      <SelectTrigger className="w-[180px] select-none">
+      <SelectTrigger className="max-w-[180px] select-none">
         <SelectValue placeholder="Month" />
       </SelectTrigger>
       <SelectContent>

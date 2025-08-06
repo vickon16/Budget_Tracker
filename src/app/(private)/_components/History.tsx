@@ -21,16 +21,16 @@ const History = ({ userSettings }: Props) => {
             <div className="flex h-10 gap-2">
               <Badge
                 variant={"outline"}
-                className="flex items-center gap-2 text-sm"
+                className="flex items-center gap-2 text-xs sm:text-sm"
               >
-                <div className="size-4 rounded-full bg-emerald-500" />
+                <div className="size-3 sm:size-4 rounded-full bg-emerald-500" />
                 Income
               </Badge>
               <Badge
                 variant={"outline"}
-                className="flex items-center gap-2 text-sm"
+                className="flex items-center gap-2 tet-xs sm:text-sm"
               >
-                <div className="size-4 rounded-full bg-rose-500" />
+                <div className="size-3 sm:size-4 rounded-full bg-rose-500" />
                 Expense
               </Badge>
             </div>
