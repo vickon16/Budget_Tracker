@@ -93,7 +93,7 @@ const CategoriesCard = ({
                         className="flex flex-col gap-2"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center text-gray-400">
+                          <span className="flex text-xs items-center text-gray-400">
                             {item.icon} {item.name}
                             <span className="ml-2 text-xs text-muted-foreground">
                               {percentage.toFixed(0)}%
