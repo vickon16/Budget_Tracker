@@ -37,6 +37,8 @@ const HistoryChart = ({ userSettings }: Props) => {
       }),
   });
 
+  console.log({ historyData });
+
   const formattingCB = useMemo(() => {
     return formatter(userSettings.currency);
   }, [userSettings]);

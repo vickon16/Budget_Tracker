@@ -60,7 +60,7 @@ const CategoriesCard = ({
 }: CategoriesCardProps) => {
   const filteredData = data?.filter((item) => item.type === type);
   const total =
-    filteredData?.reduce((acc, item) => (acc += item?._sum?.amount || 0), 0) ||
+    filteredData?.reduce((acc, item) => (acc += item?.totalAmount || 0), 0) ||
     0;
 
   return (
@@ -84,7 +84,7 @@ const CategoriesCard = ({
               <ScrollArea className="w-full h-60">
                 <div className="w-full flex flex-col gap-4 py-4 px-2">
                   {filteredData?.map((item) => {
-                    const amount = item?._sum.amount || 0;
+                    const amount = item?.totalAmount || 0;
                     const percentage = (amount / total) * 100;
 
                     return (
@@ -94,7 +94,7 @@ const CategoriesCard = ({
                       >
                         <div className="flex items-center justify-between">
                           <span className="flex items-center text-gray-400">
-                            {/* {item.categoryIcon} {item.category} */}
+                            {item.icon} {item.name}
                             <span className="ml-2 text-xs text-muted-foreground">
                               {percentage.toFixed(0)}%
                             </span>

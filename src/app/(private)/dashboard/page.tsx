@@ -5,16 +5,14 @@ import CreateTransactionsDialog from "../_components/CreateTransactionsDialog";
 import Overview from "../_components/Overview";
 import History from "../_components/History";
 import { auth } from "@/server/auth";
+import { getUserSettings } from "@/actions/user/get";
 
 const DashboardPage = async () => {
   const session = await auth();
   if (!session || !session?.user?.id) redirect("/auth/login");
 
-  const userSettings = await prisma.userSettings.findUnique({
-    where: { userId: session.user.id },
-  });
-
-  if (!userSettings) redirect("/wizard");
+  const userSettings = await getUserSettings();
+  if (!userSettings?.success || !userSettings?.data) redirect("/wizard");
 
   return (
     <div className="bg-card py-8">
@@ -59,8 +57,8 @@ const DashboardPage = async () => {
         </div>
       </div>
 
-      <Overview userSettings={userSettings} />
-      <History userSettings={userSettings} />
+      <Overview userSettings={userSettings.data} />
+      <History userSettings={userSettings.data} />
     </div>
   );
 };
