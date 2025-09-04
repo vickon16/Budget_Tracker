@@ -144,7 +144,7 @@ const CreateCategoryDialog = ({ type, closeCategoryDialog }: Props) => {
                 <FormItem className="space-y-3">
                   <FormLabel>Icon</FormLabel>
                   <FormControl>
-                    <Popover>
+                    <Popover modal={false}>
                       <PopoverTrigger asChild>
                         <Button
                           variant={"outline"}

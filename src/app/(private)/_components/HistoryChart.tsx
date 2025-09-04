@@ -123,7 +123,7 @@ const HistoryChart = ({ userSettings }: Props) => {
           </BarChart>
         </ResponsiveContainer>
       ) : (
-        <Card className="flex h-[300px] flex-col items-center justify-center bg-background">
+        <Card className="flex h-[300px] flex-col items-center justify-center bg-background text-center p-4">
           No data for the selected period
           <p className="text-sm text-muted-foreground">
             Try selecting a different period or add a new transaction

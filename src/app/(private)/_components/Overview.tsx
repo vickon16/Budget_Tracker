@@ -22,8 +22,8 @@ const Overview = ({ userSettings }: Props) => {
 
   return (
     <section className="container space-y-6 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <h2 className="text-lg sm:text-xl lg:text-3xl font-bold">Overview</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2 px-2">
+        <h2 className="text-base sm:text-xl lg:text-3xl font-bold">Overview</h2>
 
         <div className="flex items-center gap-3">
           <DateRangePicker

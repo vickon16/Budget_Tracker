@@ -49,7 +49,7 @@ const RowActions = ({ transaction }: Props) => {
       });
     },
     onError: (error) => {
-      console.log({error})
+      console.log({ error });
       toast.error("Failed to delete transaction", {
         id: transaction.id,
       });
@@ -58,7 +58,7 @@ const RowActions = ({ transaction }: Props) => {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant={"ghost"} className="size-8 p-0">
             <span className="sr-only">Open Menu</span>

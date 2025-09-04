@@ -136,7 +136,7 @@ const NavbarAvatar = () => {
   if (!session || !session?.user) return null;
   const user = session.user;
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="focus:outline-none focus:ring-[2px] focus:ring-offset-2 focus:ring-primary rounded-full">
         <Avatar>
           <AvatarImage
